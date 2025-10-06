@@ -1,17 +1,69 @@
+<!-- taskpane.html -->
 <!DOCTYPE html>
 <html>
 <head>
-  <meta charset="utf-8" />
-  <title>Cell Info Pane</title>
+  <meta charset="utf-8">
+  <title>Watch Panel</title>
   <script src="https://appsforoffice.microsoft.com/lib/1/hosted/office.js"></script>
-  <script src="taskpane.js"></script>
+  <script defer src="taskpane.js"></script>
   <style>
-    body { font-family: sans-serif; margin: 1em; }
-    #cellData { padding: .5em; border: 1px solid #ccc; border-radius: 6px; }
+    body { font-family: sans-serif; margin: 1rem; }
+    h3 { margin-top: 2rem; }
+    .watch-item { border: 1px solid #ccc; padding: 0.5rem; margin-bottom: 0.5rem; border-radius: 4px; }
   </style>
 </head>
 <body>
-  <h3>Selected Cell</h3>
-  <div id="cellData">Select a cell to see its value.</div>
+  <h2>Named Range Watch Panel</h2>
+  <input id="rangeNameInput" placeholder="Named range..." />
+  <button id="addBtn">Add Watch</button>
+
+  <h3>Watched Ranges</h3>
+  <div id="watchList">None yet.</div>
+
+  <script>
+    let watchedRanges = [];
+
+    Office.onReady(() => {
+      document.getElementById("addBtn").onclick = async () => {
+        const name = document.getElementById("rangeNameInput").value.trim();
+        if (name && !watchedRanges.includes(name)) {
+          watchedRanges.push(name);
+          await refreshWatches();
+        }
+      };
+
+      refreshWatches();
+    });
+
+    async function refreshWatches() {
+      await Excel.run(async context => {
+        const container = document.getElementById("watchList");
+        container.innerHTML = "";
+
+        for (let name of watchedRanges) {
+          try {
+            const range = context.workbook.names.getItem(name).getRange();
+            range.load("values, address, worksheet/name");
+            await context.sync();
+
+            const div = document.createElement("div");
+            div.className = "watch-item";
+            div.innerText = `${name} = ${range.values[0][0]}\n(${range.worksheet.name}!${range.address})`;
+            container.appendChild(div);
+          } catch (e) {
+            const errorDiv = document.createElement("div");
+            errorDiv.className = "watch-item";
+            errorDiv.style.color = "red";
+            errorDiv.innerText = `Error reading '${name}': ${e.message}`;
+            container.appendChild(errorDiv);
+          }
+        }
+
+        if (watchedRanges.length === 0) {
+          container.innerText = "None yet.";
+        }
+      });
+    }
+  </script>
 </body>
 </html>
