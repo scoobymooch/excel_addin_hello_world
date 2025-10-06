@@ -1,7 +1,6 @@
 Office.onReady(() => {
   Excel.run(async context => {
-    const sheet = context.workbook.worksheets.getActiveWorksheet();
-    sheet.onSelectionChanged.add(onSelectionChanged);
+    context.workbook.worksheets.onSelectionChanged.add(onSelectionChanged);
     await context.sync();
   });
 });
