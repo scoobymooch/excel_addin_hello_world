@@ -12,7 +12,7 @@
     <Host Name="Workbook"/>
   </Hosts>
   <DefaultSettings>
-    <SourceLocation DefaultValue="https://127.0.01:8000/taskpane.html"/>
+    <SourceLocation DefaultValue="https://scoobymooch.github.io/excel_addin_hello_world/taskpane.html"/>
   </DefaultSettings>
   <Permissions>ReadWriteDocument</Permissions>
 </OfficeApp>
